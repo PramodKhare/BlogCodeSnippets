@@ -16,7 +16,7 @@ Ext.define('Application.view.item.DetailsPanel', {
             // margin: '0 0 10',
             // Item id - used by Ext.getCmp() method for instance
             // selection
-            id : 'item-details',
+            id : 'item_details',
             // Html inside this component
             // html : 'This will be in south of center panel',
             // Since adding parameter "padding" to this item
