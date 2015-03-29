@@ -662,11 +662,12 @@ Ext.define('Application.view.item.Show', {
           emptyText : "Select states",
           store : statesStore,
           displayField : 'name',
-          valueField : 'abbr',
+          valueField : 'name',
           editable : true,
           cols: 20,
           rows: 6,
           hideTrigger : true,
+          // matchFieldWidth : false,
           enableKeyEvents : true,
           fieldStyle : "height:100px",
           queryMode : 'local',
@@ -675,7 +676,6 @@ Ext.define('Application.view.item.Show', {
                 '<textarea id="{id}" rows="6" style="width: 100%;" {inputAttrTpl} class="{fieldCls} {typeCls} ' +
                     'x-form-text x-form-textarea {editableCls}" autocomplete="off"', 
                  '<tpl if="value"> value="{[Ext.util.Format.htmlEncode(values.value)]}"</tpl>', 
-                 '<tpl if="name"> name="{name}"</tpl>', 
                  '<tpl if="rows"> rows="{rows}" </tpl>',
                  '<tpl if="cols"> cols="{cols}" </tpl>',
                  '<tpl if="placeholder"> placeholder="{placeholder}"</tpl>', 
@@ -700,8 +700,12 @@ Ext.define('Application.view.item.Show', {
                 compiled : true,
                 disableFormats : true
               }],
-          tpl : Ext.create('Ext.XTemplate', '<div id="my_combo_toolbar_holder"></div>', '<tpl for=".">', '<div class="x-boundlist-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="chkCombo-default-icon chkCombo" />{abbr} - {name}</div>', '</tpl>'),
-          displayTpl : Ext.create('Ext.XTemplate', '<tpl for=".">', '{name} [{abbr}], ', '</tpl>'),
+          tpl : Ext.create('Ext.XTemplate', 
+                '<div id="my_combo_toolbar_holder"></div>', 
+                '<tpl for=".">', 
+                    '<div class="x-boundlist-item"> <img src="' + Ext.BLANK_IMAGE_URL + '" class="chkCombo-default-icon chkCombo" />{name}</div>', 
+                 '</tpl>'),
+          displayTpl : Ext.create('Ext.XTemplate', '<tpl for=".">', '{name} ', '</tpl>'),
           /*getSubTplData : function() {
             var me = this;
             Ext.applyIf(me.subTplData, {
@@ -716,22 +720,45 @@ Ext.define('Application.view.item.Show', {
           },*/
           // To enable the HTML inside the Textarea - change tpl
           // http://stackoverflow.com/questions/9016859/extjs-4-render-html-of-a-selected-value-in-a-combobox
-          setRawValue : function(value) {
+          setRawValue : function(value, erase) {
             var me = this;
+            var erase = Ext.value(erase, false);
             value = Ext.value(me.transformRawValue(value), '');
             me.rawValue = value;
+            
+            if (!Ext.isDefined(me.accumulatedRawValue)) {
+              me.accumulatedRawValue = "";
+            }
+
+            if(!erase){
+                me.accumulatedRawValue +=value;
+            }else{
+                me.accumulatedRawValue = value;
+            }
 
             // Some Field subclasses may not render an inputEl
             if (me.inputEl) {
-              me.inputEl.dom.value = value;
+              me.inputEl.dom.value = me.accumulatedRawValue;
               // use innerHTML
               // me.inputEl.dom.innerHTML = value;
             }
             return value;
+          },/*
+          getRawValue : function() {
+            var me = this, v = me.callParent();
+            if (v === me.emptyText && me.valueContainsPlaceholder) {
+              v = '';
+            }
+            return '';
           },
+          clearValue : function() {
+            this.setValue([]);
+            this.setRawValue("",true);
+          },*/
           listeners : {
             keyup : function(combo, e, eOpts) {
-                Ext.get('text_area_'+combo.id+"-inputEl").dom.value = combo.getValue();
+                Ext.get('text_area_'+combo.id+"-inputEl").dom.value = combo.inputEl.dom.value;
+                console.debug(e.getX() +" - "+ e.getY());
             },
             beforequery : function(record) {
               console.debug(record.query);
