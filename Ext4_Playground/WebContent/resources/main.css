@@ -12,3 +12,15 @@
 .x-boundlist-selected img.chkCombo{
     background: transparent url(../lib/extjs/resources/themes/images/default/menu/checked.gif);
 }
+
+.ux-edit-search-query-actioncolumn-cls
+{
+  margin-right: 5px;
+  background-image: url(../lib/extjs/examples/shared/icons/fam/cog_edit.png);
+}
+
+.ux-show-search-results-actioncolumn-cls
+{
+  margin-right: 5px;
+  background-image: url(../lib/extjs/examples/shared/icons/fam/grid.png);
+}

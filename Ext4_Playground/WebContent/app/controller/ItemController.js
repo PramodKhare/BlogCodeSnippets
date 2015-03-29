@@ -2,7 +2,7 @@ Ext.define('Application.controller.ItemController', {
   // Extend basic controller object
   extend: 'Ext.app.Controller',
   // Attach store classes to this controller
-  stores: ['Items'],
+  stores: ['Items' ],
   // Attach model classes to this controller
   models: ['Item'],
   // ..and last but not least - the view classes
