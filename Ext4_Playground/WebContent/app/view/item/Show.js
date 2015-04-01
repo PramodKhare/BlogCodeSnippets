@@ -701,9 +701,8 @@ Ext.define('Application.view.item.Show', {
                 disableFormats : true
               }],
           tpl : Ext.create('Ext.XTemplate', 
-                '<div id="my_combo_toolbar_holder"></div>', 
                 '<tpl for=".">', 
-                    '<div class="x-boundlist-item"> <img src="' + Ext.BLANK_IMAGE_URL + '" class="chkCombo-default-icon chkCombo" />{name}</div>', 
+                    '<div class="x-boundlist-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="chkCombo-default-icon chkCombo" />{name}</div>', 
                  '</tpl>'),
           displayTpl : Ext.create('Ext.XTemplate', '<tpl for=".">', '{name} ', '</tpl>'),
           /*getSubTplData : function() {
@@ -749,7 +748,7 @@ Ext.define('Application.view.item.Show', {
             if (v === me.emptyText && me.valueContainsPlaceholder) {
               v = '';
             }
-            return '';
+            return v;
           },
           clearValue : function() {
             this.setValue([]);
@@ -772,6 +771,50 @@ Ext.define('Application.view.item.Show', {
                 Ext.getCmp('my_toolbar_').render(container);
               }
             }*/
+          }
+        }, {
+          xtype : 'combo',
+          id : 'statesComboList_hidden',
+          multiSelect : true,
+          fieldLabel : 'Choose State 2',
+          hideLabel : true,
+          emptyText : "Select states",
+          store : statesStore,
+          displayField : 'name',
+          valueField : 'name',
+          editable : true,
+          cols: 20,
+          rows: 6,
+          hideTrigger : true,
+          // matchFieldWidth : false,
+          enableKeyEvents : true,
+          fieldStyle : "height:100px",
+          queryMode : 'local',
+          tpl : Ext.create('Ext.XTemplate', '<tpl for=".">', '<div class="x-boundlist-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="chkCombo-default-icon chkCombo" />{name}</div>', '</tpl>'),
+          displayTpl : Ext.create('Ext.XTemplate', '<tpl for=".">', '{name} ', '</tpl>'),
+          listeners : {
+            beforequery : function(record) {
+              console.debug(record.query);
+              record.query = new RegExp(record.query.substring(record.query.lastIndexOf(" ") + 1), 'i');
+              record.forceAll = true;
+            }
+          },
+          alignPicker : function() {
+            var me = Ext.getCmp('StatesComboList'), picker = me.getPicker(), 
+            heightAbove = me.getPosition()[1] - Ext.getBody().getScroll().top, heightBelow = Ext.Element.getViewHeight() - heightAbove - me.getHeight(), space = Math.max(heightAbove, heightBelow);
+
+            // Allow the picker to height itself naturally.
+            if (picker.height) {
+              delete picker.height;
+              picker.updateLayout();
+            }
+            // Then ensure that vertically, the dropdown will fit into the space
+            // either above or below the inputEl.
+            if (picker.getHeight() > space - 5) {
+              picker.setHeight(space - 5); // have some leeway so we aren't
+              // flush against
+            }
+            me.callParent();
           }
         }, {
           xtype : 'textareafield',
