@@ -33,34 +33,28 @@ var getFieldGridPanel = function() {
                     inputValue : 1,
                     width : 100,
                     checked : true,
-                    handler : function() {
-                      var store = Ext.getCmp('fieldsGridPanelId').getStore();
-                      store.removeAll();
-                      // store.getProxy().setUrl('/api/v1/category/travel');
-                      // store.proxy.extraParams = { key:'test'};
-                      // store.load();
-                      /*
-                       * store.load({ params : { 'foo1' : bar1, 'foo2' : bar2 }
-                       * });
-                       */
-                      store.loadRawData(dummyIndianPatensFieldsJSONData);
+                    listeners : {
+                      change : function(rdgroupp, newValue, oldValue, eOpts) {
+                        if (newValue) {
+                          var store = Ext.getCmp('fieldsGridPanelId').getStore();
+                          store.removeAll();
+                          store.loadRawData(dummyIndianPatensFieldsJSONData);
+                        }
+                      }
                     }
                   }, {
                     boxLabel : 'World wide patents',
                     name : 'patent-fields',
                     inputValue : 2,
                     width : 150,
-                    handler : function() {
-                      var store = Ext.getCmp('fieldsGridPanelId').getStore();
-                      store.removeAll();
-                      // store.getProxy().setUrl('/api/v1/category/travel');
-                      // store.proxy.extraParams = { key:'test'};
-                      // store.load();
-                      /*
-                       * store.load({ params : { 'foo1' : bar1, 'foo2' : bar2 }
-                       * });
-                       */
-                      store.loadRawData(dummyWorldPatentsFieldsJSONData);
+                    listeners : {
+                      change : function(rdgroupp, newValue, oldValue, eOpts) {
+                        if (newValue) {
+                          var store = Ext.getCmp('fieldsGridPanelId').getStore();
+                          store.removeAll();
+                          store.loadRawData(dummyWorldPatentsFieldsJSONData);
+                        }
+                      }
                     }
                   }]
             }],

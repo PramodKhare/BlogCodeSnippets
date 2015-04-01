@@ -28,90 +28,174 @@ Ext.define('Ext.form.field.ASMSHighlightedTextArea', {
       }
     });
 
-Ext.define('Ext.Msg.proximity.prompt', {
-      extend : 'Ext.window.Window',
-      height : 140,
-      width : 320,
-      title : 'Set Proximity Operator',
-      layout : 'fit',
-      id : 'proximitySearchOptionsWindowId',
-      modal : true,
-      autoDestroy : true,
-      buttonAlign : 'center',
-      closable : true,
-      items : [{
-            xtype : 'form',
-            frame : true,
-            border : false,
-            layout : {
-              type : 'hbox',
-              align : 'middle'
-            },
-            items : [{
-                  xtype : 'container',
-                  flex : 1,
-                  border : false,
-                  padding : 5,
-                  layout : {
-                    type : 'vbox',
-                    align : 'stretch'
-                  },
-                  items : [{
-                        xtype : 'numberfield',
-                        fieldLabel : 'Word X is up to a maximum of ',
-                        id : 'maxWordProximityXId',
-                        labelSeparator : "",
-                        allowBlank : false,
-                        labelWidth : 200,
-                        flex : 1,
-                        value : 1,
-                        minValue : 1,
-                        maxValue : 10
-                      }, {
-                        xtype : 'combo',
-                        valueField : 'id',
-                        id : 'wordsApartFromComboId',
-                        fieldLabel : 'word(s) apart from word Y ',
-                        labelSeparator : "",
-                        labelWidth : 150,
-                        flex : 1,
-                        value : 0,
-                        editable : false,
-                        displayField : 'name',
-                        store : new Ext.data.Store({
-                              fields : ['id', 'name'],
-                              data : [{
-                                    id : 0,
-                                    name : 'in the same order'
-                                  }, {
-                                    id : 1,
-                                    name : 'order does not matter'
-                                  }]
-                            })
-                      }]
-                }]
+    Ext.define("Ext.form.field.QueryAutoCompleteTextAreaCombo", {
+      extend : 'Ext.form.field.ComboBox',
+      alias : 'widget.QueryAutoCompleteTextAreaCombo',
+      // TODO - check how to put multiple values into "query textbox for multiple values selection"
+      multiSelect : false,
+      editable : true,
+      cols: 20,
+      rows: 6,
+      hideTrigger : true,
+      enableKeyEvents : true,
+      fieldStyle : "height:100px",
+      autoSuggestEnableRegex : /\s*(\w+)\s*\:\s{0,2}\"*(\w{3,})\"*$/i,
+      textAreaRawValue : "",
+      fieldSubTpl : ['<div class="{hiddenDataCls}" role="presentation"></div>', 
+            '<div id="wrapper_div_{id}">',
+            '<textarea id="{id}" rows="6" style="width: 100%;" {inputAttrTpl} class="{fieldCls} {typeCls} ' +
+                'x-form-text x-form-textarea {editableCls}" autocomplete="off"', 
+             '<tpl if="value"> value="{[Ext.util.Format.htmlEncode(values.value)]}"</tpl>', 
+             '<tpl if="rows"> rows="{rows}" </tpl>',
+             '<tpl if="cols"> cols="{cols}" </tpl>',
+             '<tpl if="placeholder"> placeholder="{placeholder}"</tpl>', 
+             '<tpl if="size"> size="{size}"</tpl>', 
+             '<tpl if="maxLength !== undefined"> maxlength="{maxLength}"</tpl>', 
+             '<tpl if="readOnly"> readonly="readonly"</tpl>', 
+             '<tpl if="disabled"> disabled="disabled"</tpl>', 
+             '<tpl if="tabIdx"> tabIndex="{tabIdx}"</tpl>', 
+             '<tpl if="fieldStyle"> style="{fieldStyle}"</tpl>', 
+             '></textarea>',
+            '<input id="text_area_{id}" style="display: none;" type="{type}" {inputAttrTpl} class="{fieldCls} {typeCls} {editableCls}" autocomplete="off"', 
+             '<tpl if="value"> value="{[Ext.util.Format.htmlEncode(values.value)]}"</tpl>', 
+             '<tpl if="name"> name="{name}"</tpl>', 
+             '<tpl if="placeholder"> placeholder="{placeholder}"</tpl>', 
+             '<tpl if="maxLength !== undefined"> maxlength="{maxLength}"</tpl>', 
+             '<tpl if="readOnly"> readonly="readonly"</tpl>', 
+             '<tpl if="disabled"> disabled="disabled"</tpl>', 
+             '<tpl if="tabIdx"> tabIndex="{tabIdx}"</tpl>', 
+             '<tpl if="fieldStyle"> style="{fieldStyle}"</tpl>', 
+             '/>',
+            '</div>', {
+            compiled : true,
+            disableFormats : true
           }],
-      buttons : [{
-            text : 'Insert in Query',
-            handler : function() {
-              var wordOrder = Ext.getCmp('wordsApartFromComboId').getValue();
-              var proximity = Ext.getCmp('maxWordProximityXId').getValue();
-              var field = Ext.getCmp('searchQueryTextAreaId');
-              if (wordOrder == 0) {
-                field.insertAtCursor(" +" + proximity + "W");
-              } else {
-                field.insertAtCursor(" /" + proximity + "W");
+      /*tpl : Ext.create('Ext.XTemplate', 
+            '<tpl for=".">', 
+                '<div class="x-boundlist-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="chkCombo-default-icon chkCombo" />{name}</div>', 
+             '</tpl>'),*/
+      displayTpl : Ext.create('Ext.XTemplate', '<tpl for=".">', '{name} ', '</tpl>'),
+      // To enable the HTML inside the Textarea - change tpl
+      // http://stackoverflow.com/questions/9016859/extjs-4-render-html-of-a-selected-value-in-a-combobox
+      setRawValue : function(value) {
+        var me = this;
+        value = Ext.value(me.transformRawValue(value), '');
+        if (me.inputEl) {
+          // get the previous dom value - save it in textAreaRawValue
+          this.textAreaRawValue = me.inputEl.dom.value;
+          // replace the last string part
+          this.textAreaRawValue = this.textAreaRawValue.replace(/\s{0,2}\"*(\w+)\"*$/i, value);
+          me.rawValue = value;
+          me.inputEl.dom.value = this.textAreaRawValue;
+        }
+        return value;
+      },
+      getRawValue : function() {
+        var me = this, v = me.callParent();
+        if (v === me.emptyText && me.valueContainsPlaceholder) {
+          v = '';
+          return v;
+        }
+        return v;
+        var match = this.autoSuggestEnableRegex.exec(v);
+        if (Ext.isEmpty(match)) {
+          return '';
+        }
+        return Ext.valueFrom(match[2], '');
+      },
+      getTextAreaValue : function(){
+        this.textAreaRawValue = this.inputEl.dom.value;
+        return Ext.valueFrom(this.textAreaRawValue, "");
+      },
+      setTextAreaValue : function(value){
+        this.textAreaRawValue = value;
+        this.inputEl.dom.value = value;
+      },
+      clearAndSetValue : function(value) {
+        this.clearValue();
+        this.textAreaRawValue = value;
+        this.inputEl.dom.value = value;
+      },
+      clearValue : function() {
+        this.callParent();
+        this.textAreaRawValue = "";
+        this.inputEl.dom.value = "";
+      },
+      insertAtCursor : function(v) {
+        var document_id = this.getFocusEl().id;
+        var text_field = document.getElementById(document_id);
+        var startPos = text_field.selectionStart;
+        var endPos = text_field.selectionEnd;
+        text_field.value = text_field.value.substring(0, startPos) + v + text_field.value.substring(endPos, text_field.value.length);
+
+        this.el.focus();
+        text_field.setSelectionRange(endPos + v.length, endPos + v.length);
+      },
+      getCursorSelectionStartPosition : function() {
+        var document_id = this.getFocusEl().id;
+        var text_field = document.getElementById(document_id);
+        return text_field.selectionStart;
+      },
+      getCursorSelectionEndPosition : function() {
+        var document_id = this.getFocusEl().id;
+        var text_field = document.getElementById(document_id);
+        return text_field.selectionEnd;
+      },
+      listeners : {
+        keyup : function(combo, e, eOpts) {
+          Ext.get('text_area_' + combo.id + "-inputEl").dom.value = combo.inputEl.dom.value;
+        },
+        beforequery : function(record) {
+          var match = this.autoSuggestEnableRegex.exec(this.inputEl.dom.value);
+          if (Ext.isEmpty(match)) {
+             return false;
+          }
+          /**
+           * So load the store based on query i.e. field-value and field-name
+           */
+          var actualQuery = match[2];
+          var storeLoadParam = match[1];
+          record.query = actualQuery;
+          record.query = new RegExp(record.query.substring(record.query.lastIndexOf(" ") + 1), 'i');
+          record.forceAll = true;
+          // TODO - dynamically change the actual store's proxy load parameters
+        }
+      }
+    });
+
+Ext.define('Ext.window.MessageBox.NumberPrompt', {
+      extend : 'Ext.window.MessageBox',
+      initComponent : function() {
+        this.callParent();
+        var index = this.promptContainer.items.indexOf(this.textField);
+        this.promptContainer.remove(this.textField);
+        this.textField = this._createNumberField();
+        this.promptContainer.insert(index, this.textField);
+      },
+
+      _createNumberField : function() {
+        return new Ext.form.field.Number({
+              id : this.id + '-textfield',
+              anchor : '100%',
+              maxValue : 30,
+              minValue : 1,
+              value : 1,
+              maskRe : '/[1-9]|1[0-9]|20/',
+              enableKeyEvents : true,
+              listeners : {
+                keydown : this.onPromptKey,
+                scope : this
               }
-              Ext.getCmp('proximitySearchOptionsWindowId').close();
-              field.focus();
-            }
-          }, {
-            text : 'Cancel',
-            handler : function() {
-              Ext.getCmp('proximitySearchOptionsWindowId').close();
-              Ext.getCmp('searchQueryTextAreaId').focus();
-            }
-          }]
+            });
+      }
+    }, function() {
+      /**
+       * @class Ext.window.MessageBox.NumberPrompt
+       * @alternateClassName Ext.Msg
+       * @extends Ext.window.MessageBox
+       * @singleton Singleton instance of Ext.window.MessageBox.NumberPrompt.
+       */
+      Ext.window.MessageBox.NumberPrompt = new this();
     });
 
 var getEditQueryFormToolbar = function() {
@@ -128,7 +212,7 @@ var getEditQueryFormToolbar = function() {
               handler : function() {
                 // Append '=' sign to current cursor position
                 var field = Ext.getCmp('searchQueryTextAreaId');
-                field.insertAtCursor(" =");
+                field.insertAtCursor(" :");
                 field.focus();
               }
             }, '-', {
@@ -212,12 +296,13 @@ var getEditQueryFormToolbar = function() {
               tooltip : 'Use proximity search operator<br/>Example : mycorrhiza~10',
               scope : this,
               handler : function() {
-                var proximityOptionsWindow = Ext.getCmp('proximitySearchOptionsWindowId');
-                if (proximityOptionsWindow == null) {
-                  Ext.create('Ext.Msg.proximity.prompt').show();
-                } else {
-                  proximityOptionsWindow.show();
-                }
+                Ext.window.MessageBox.NumberPrompt.prompt('Proximity Range', 'Please enter Proximity range value:', function showResultText(btn, text) {
+                      if (Ext.isNumber(text) && text < 20 && text > 0) {
+                        var field = Ext.getCmp('searchQueryTextAreaId');
+                        field.insertAtCursor(" ~" + text);
+                        field.focus();
+                      }
+                    });
               }
             }]
       });
@@ -242,6 +327,23 @@ var getSearchQueryEditFormPanel = function() {
         defaultType : 'textfield',
         tbar : getEditQueryFormToolbar(),
         items : [{
+          xtype : 'QueryAutoCompleteTextAreaCombo',
+          id : 'searchQueryTextAreaId',
+          fieldLabel : 'Choose State',
+          hideLabel : true,
+          emptyText : "Select states",
+          store : Ext.data.StoreManager.lookup('statesStore'),
+          displayField : 'name',
+          valueField : 'name',
+          editable : true,
+          cols: 20,
+          rows: 6,
+          hideTrigger : true,
+          // matchFieldWidth : false,
+          enableKeyEvents : true,
+          fieldStyle : "height:100px",
+          queryMode : 'local'
+       }/*{
               xtype : 'ASMSHighlightedTextArea',
               name : 'query',
               id : 'searchQueryTextAreaId',
@@ -251,7 +353,7 @@ var getSearchQueryEditFormPanel = function() {
               maxHeight : 200,
               emptyText : 'Write Search Query here e.g. TI=test',
               anchor : '100%'
-            }],
+            }*/],
         buttonAlign : 'center',
         formPanelDropTarget : null,
         listeners : {
@@ -267,6 +369,7 @@ var getSearchQueryEditFormPanel = function() {
                   notifyDrop : function(ddSource, e, data) {
                     var selectedRecord = ddSource.dragData.records[0];
                     form.items.items[0].insertAtCursor(' ' + selectedRecord.get('id') + ' ');
+                    form.items.items[0].focus();
                     return true;
                   }
                 });
@@ -289,7 +392,7 @@ var getSearchQueryEditFormPanel = function() {
             }, {
               text : 'Reset',
               handler : function() {
-                Ext.getCmp('searchQueryTextAreaId').setValue('');
+                Ext.getCmp('searchQueryTextAreaId').clearValue('');
               }
             }, {
               text : 'Save Query',

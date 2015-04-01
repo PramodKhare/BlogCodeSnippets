@@ -39,7 +39,7 @@ var getQuerySearchHistoryGridPanel = function() {
                     tooltip : 'Edit Search Query',
                     handler : function(grid, rowIndex, colIndex) {
                       var rec = grid.getStore().getAt(rowIndex);
-                      Ext.getCmp('searchQueryTextAreaId').setValue(rec.get('query'));
+                      Ext.getCmp('searchQueryTextAreaId').clearAndSetValue(rec.get('query'));
                     }
                   }, {
                     iconCls : 'ux-show-search-results-actioncolumn-cls',
