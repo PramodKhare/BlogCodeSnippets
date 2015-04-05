@@ -19,8 +19,6 @@
 Ext.define("MyApp.EditQueryWindow.ux.QueryAutoCompleteTextAreaCombo", {
   extend : 'Ext.form.field.ComboBox',
   alias : 'widget.QueryAutoCompleteTextAreaCombo',
-  // TODO - check how to put multiple values into "query textbox for multiple
-  // values selection"
   multiSelect : true,
   editable : true,
   cols : 20,
@@ -28,8 +26,6 @@ Ext.define("MyApp.EditQueryWindow.ux.QueryAutoCompleteTextAreaCombo", {
   hideTrigger : true,
   enableKeyEvents : true,
   fieldStyle : "height:100px",
-  autoSuggestEnableRegex : /\s*(\w+)\s*\:\s{0,2}\"*(\w{2,})\"*$/i,
-  textAreaRawValue : "",
   fieldSubTpl : [
       '<div class="{hiddenDataCls}" role="presentation"></div>',
       '<div id="wrapper_div_{id}">',
@@ -63,56 +59,69 @@ Ext.define("MyApp.EditQueryWindow.ux.QueryAutoCompleteTextAreaCombo", {
           '<div class="x-boundlist-item"><img src="' + Ext.BLANK_IMAGE_URL
               + '" class="chkCombo-default-icon chkCombo" />{name}</div>',
           '</tpl>'),
-  displayTpl : Ext
-      .create('Ext.XTemplate', '<tpl for=".">', '{name} ', '</tpl>'),
+  displayTpl : Ext.create('Ext.XTemplate', '<tpl for=".">', '+{[this.setDisplayValue(values.name)]} ',
+       '</tpl>', {
+        // XTemplate configuration:
+        compiled : true,
+        disableFormats : true,
+        // member functions:
+        setDisplayValue : function(name) {
+          if (name.search(/\s/m) == -1) {
+            return name;
+          } else {
+            return '"' + name + '"';
+          }
+        }
+      }),
   // To enable the HTML inside the Textarea - change tpl
   // http://stackoverflow.com/questions/9016859/extjs-4-render-html-of-a-selected-value-in-a-combobox
-  setRawValue : function(value) {
-    var me = this;
-    value = Ext.value(me.transformRawValue(value), '');
-    if (me.inputEl) {
-      // get the previous dom value - save it in textAreaRawValue
-      this.textAreaRawValue = me.inputEl.dom.value;
-      // replace the last string part
-      // Use Lucene Query with Field Grouping format 
-      // e.g. (+abc +xys +uyrbjhs)
-      // If any values contain spaces then enclose them into double-quotes "one word"
-      this.textAreaRawValue = this.textAreaRawValue.replace(
-          /\s{0,2}\"*(\w+)\"*$/i, value);
-      me.rawValue = value;
-      me.inputEl.dom.value = this.textAreaRawValue;
-    }
-    return value;
-  },
   getRawValue : function() {
-    var me = this, v = me.callParent();
+    var me = this, 
+    v = Ext.value(me.actualValues, '');
     if (v === me.emptyText && me.valueContainsPlaceholder) {
-      v = '';
-      return v;
-    }
-    //return v;
-    var match = this.autoSuggestEnableRegex.exec(v);
-    if (Ext.isEmpty(match)) {
       return '';
     }
-    return Ext.valueFrom(match[2], '');
+    return v;
+  },
+  setRawValue : function(value) {
+    var me = this, previousRawValue, newRawValue;
+    value = Ext.value(me.transformRawValue(value), '');
+    if (me.inputEl) {
+        me.rawValue = me.inputEl.dom.value
+    }else{
+        me.rawValue = Ext.valueFrom(me.rawValue, '');
+    }
+    me.actualValues = value;
+    if(me.rawValue.lastIndexOf(":") != -1){
+        // Replace everything after ":" with given value and then assign it to this.rawValue
+        previousRawValue = me.rawValue.substring(0,me.rawValue.lastIndexOf(":")+1);
+        newRawValue = previousRawValue + "(" + me.actualValues + ")";
+    }else{
+        newRawValue = me.actualValues;
+    }
+    if (me.inputEl) {
+      me.inputEl.dom.value = newRawValue;
+      me.rawValue = newRawValue;
+    }
+    return me.actualValues;
   },
   getTextAreaValue : function() {
-    this.textAreaRawValue = this.inputEl.dom.value;
-    return Ext.valueFrom(this.textAreaRawValue, "");
+    this.rawValue = this.inputEl.dom.value;
+    return Ext.valueFrom(this.rawValue, "");
   },
   setTextAreaValue : function(value) {
-    this.textAreaRawValue = value;
+    this.rawValue = value;
     this.inputEl.dom.value = value;
   },
   clearAndSetValue : function(value) {
     this.clearValue();
-    this.textAreaRawValue = value;
+    this.actualValues = '';
+    this.rawValue = value;
     this.inputEl.dom.value = value;
   },
   clearValue : function() {
     this.callParent();
-    this.textAreaRawValue = "";
+    this.rawValue = "";
     this.inputEl.dom.value = "";
   },
   insertAtCursor : function(v) {
@@ -139,21 +148,35 @@ Ext.define("MyApp.EditQueryWindow.ux.QueryAutoCompleteTextAreaCombo", {
   listeners : {
     keyup : function(combo, e, eOpts) {
       Ext.get('text_area_' + combo.id + "-inputEl").dom.value = combo.inputEl.dom.value;
+      // combo.getPicker().hide();
     },
     beforequery : function(record) {
-      var match = this.autoSuggestEnableRegex.exec(this.inputEl.dom.value);
-      if (Ext.isEmpty(match)) {
+      var rawValue = this.inputEl.dom.value.trim();
+      // For autosuggestion to start suggesting values - user must put 
+      // equals i.e .":" after field-name
+      if(rawValue.lastIndexOf(":") == -1){
+        this.actualValues = '';
+        return false;
+      }
+      // e.g. in query value - "TA : was" --> "TA" == field name and "was" == keyword
+      var keyword = rawValue.substring(rawValue.lastIndexOf(":")+1).trim();
+      // Meaning --> query already fired up.
+      // To show autosuggest again -> erase whole value for "that field" 
+      // including the opening and closing braces and then try again, it will work
+      // e.g. Autosuggest will work for values "TA: was" where TA is field value
+      // but won't work if it has any spaces in its value e.g. "TA : was tr"
+      // or e.g. "TA : (+one +'two three')"
+      if(keyword.search(/\s/) != -1 || keyword.length < 2){
+        this.actualValues = '';
         return false;
       }
       /**
        * So load the store based on query i.e. field-value and field-name
        */
-      var actualQuery = match[2];
-      var storeLoadParam = match[1];
-      record.query = actualQuery;
-      record.query = new RegExp(record.query.substring(record.query
-              .lastIndexOf(" ")
-              + 1), 'i');
+      var temp = rawValue.substring(0,rawValue.lastIndexOf(":")).trim();
+      var searchFieldName = temp.substring(temp.lastIndexOf(" "));
+      record.query = keyword;
+      record.query = new RegExp(record.query.substring(record.query.lastIndexOf(" ") + 1), 'i');
       record.forceAll = true;
       // TODO - dynamically change the actual store's proxy load parameters
     }

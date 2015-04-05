@@ -1,0 +1,81 @@
+{
+  'items' : [{
+        'id' : 'ABDE',
+        "name" : "Abstract (de)"
+      }, {
+        'id' : 'ABEN',
+        "name" : "Abstract (en)"
+      }, {
+        'id' : 'ABFR',
+        "name" : "Abstract (fr)"
+      }, {
+        'id' : 'CLEN',
+        "name" : "Claims (en)"
+      }, {
+        'id' : 'DEEN',
+        "name" : "Description (en)"
+      }, {
+        'id' : 'ADB',
+        "name" : "Advantages"
+      }, {
+        'id' : 'ICLM',
+        "name" : "Independent claims"
+      }, {
+        'id' : 'FR',
+        "name" : "Full text"
+      }, {
+        'id' : 'IPC',
+        "name" : "IPC"
+      }, {
+        'id' : 'CPC',
+        "name" : "CPC"
+      }, {
+        'id' : 'FI',
+        "name" : "FI"
+      }, {
+        'id' : 'F-terms',
+        "name" : "FTM"
+      }, {
+        'id' : 'APP',
+        "name" : "Applicant / proprietor"
+      }, {
+        'id' : 'APPCI',
+        "name" : "Applicant / proprietor (city)"
+      }, {
+        'id' : 'APPCO',
+        "name" : "Applicant / proprietor (country)"
+      }, {
+        'id' : 'PUD',
+        "name" : "Publication date"
+      }, {
+        'id' : 'PUK',
+        "name" : "Publication kind"
+      }, {
+        'id' : 'PUL',
+        "name" : "Publication language"
+      }, {
+        'id' : 'PUN',
+        "name" : "Publication number"
+      }, {
+        'id' : 'PUW',
+        "name" : "Publication week"
+      }, {
+        'id' : 'REP',
+        "name" : "Representative"
+      }, {
+        'id' : 'REPCI',
+        "name" : "Representative (city)"
+      }, {
+        'id' : 'REPCO',
+        "name" : "Representative (country)"
+      }, {
+        'id' : 'TSF',
+        "name" : "Technical search field"
+      }, {
+        'id' : 'CNAP',
+        "name" : "NPL citation (applicant)"
+      }, {
+        'id' : 'WORD',
+        "name" : "All words in all languages"
+      }]
+}

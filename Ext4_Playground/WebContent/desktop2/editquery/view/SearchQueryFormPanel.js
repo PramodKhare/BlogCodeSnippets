@@ -27,7 +27,7 @@ Ext.define('MyApp.EditQueryWindow.view.SearchQueryFormPanel', {
           handler : function() {
             // Append '=' sign to current cursor position
             var field = Ext.getCmp('searchQueryTextAreaId');
-            field.insertAtCursor(" :");
+            field.insertAtCursor(":");
             field.focus();
           }
         }, '-', {
@@ -136,8 +136,8 @@ Ext.define('MyApp.EditQueryWindow.view.SearchQueryFormPanel', {
             },
             notifyDrop : function(ddSource, e, data) {
               var selectedRecord = ddSource.dragData.records[0];
-              form.items.items[0].insertAtCursor(' ' + selectedRecord.get('id')
-                  + ':');
+              form.items.items[0]
+                  .insertAtCursor(selectedRecord.get('id') + ':');
               form.items.items[0].focus();
               return true;
             }
@@ -153,24 +153,50 @@ Ext.define('MyApp.EditQueryWindow.view.SearchQueryFormPanel', {
   },
   // Form submit and form-clear buttons
   buttons : [{
-        text : 'Search',
-        formBind : true,
-        disabled : true,
-        handler : function() {
-          // submit query value to backend url
+    text : 'Search',
+    formBind : true,
+    disabled : true,
+    handler : function() {
+      // submit query value to backend url
+      // Replace the shorthand queries with their actual values
+      // e.g. $1 AND $2 -> should be properly expanded to their full queries
+      var pattern = /(^\$[0-9]+\s+|\s+\$[0-9]+\s+|\s+\$[0-9]+$|^\$[0-9]+$)/gm;
+      var query = Ext.getCmp('searchQueryTextAreaId').getTextAreaValue();
+      function expandQuery(str, p1, offset, s) {
+        var gridStore = Ext.getCmp('historyGridPanelId').getStore();
+        var record_index = gridStore.find('id', p1.trim());
+        if (record_index == -1) {
+          return p1;
+        } else {
+          return " " + gridStore.getAt(record_index).get('query') + " ";
         }
-      }, {
-        text : 'Reset',
-        handler : function() {
-          // Clears the field-values to their empty text-values
-          Ext.getCmp('searchQueryTextAreaId').clearValue('');
+      }
+      Ext.MessageBox.alert('Search Query', query.replace(pattern, expandQuery));
+    }
+  }, {
+    text : 'Reset',
+    handler : function() {
+      // Clears the field-values to their empty text-values
+      Ext.getCmp('searchQueryTextAreaId').clearValue('');
+    }
+  }, {
+    text : 'Save Query',
+    handler : function() {
+      // Save query value to backend url
+      var pattern = /(^\$[0-9]+\s+|\s+\$[0-9]+\s+|\s+\$[0-9]+$|^\$[0-9]+$)/gm;
+      var query = Ext.getCmp('searchQueryTextAreaId').getTextAreaValue();
+      function expandQuery(str, p1, offset, s) {
+        var gridStore = Ext.getCmp('historyGridPanelId').getStore();
+        var record_index = gridStore.find('id', p1.trim());
+        if (record_index == -1) {
+          return p1;
+        } else {
+          return " " + gridStore.getAt(record_index).get('query') + " ";
         }
-      }, {
-        text : 'Save Query',
-        handler : function() {
-          // Save query value to backend url
-        }
-      }],
+      }
+      Ext.MessageBox.alert('Save Query', "Your query is saved successfully!<br/>"+query.replace(pattern, expandQuery));
+    }
+  }],
   // Items in form-panel - mainly Autosuggest TextArea
   items : [{
         xtype : 'QueryAutoCompleteTextAreaCombo',
