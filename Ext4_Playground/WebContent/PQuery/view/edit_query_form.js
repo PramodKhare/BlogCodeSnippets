@@ -80,6 +80,7 @@ Ext.define('Ext.form.field.ASMSHighlightedTextArea', {
       setRawValue : function(value) {
         var me = this;
         value = Ext.value(me.transformRawValue(value), '');
+        //console.debug(value);
         if (me.inputEl) {
           // get the previous dom value - save it in textAreaRawValue
           this.textAreaRawValue = me.inputEl.dom.value;
@@ -101,6 +102,7 @@ Ext.define('Ext.form.field.ASMSHighlightedTextArea', {
         if (Ext.isEmpty(match)) {
           return '';
         }
+        //console.debug("getRawValue - "+match[2]);
         return Ext.valueFrom(match[2], '');
       },
       getTextAreaValue : function(){
@@ -146,6 +148,7 @@ Ext.define('Ext.form.field.ASMSHighlightedTextArea', {
           Ext.get('text_area_' + combo.id + "-inputEl").dom.value = combo.inputEl.dom.value;
         },
         beforequery : function(record) {
+          //console.debug("inside before query - "+this.inputEl.dom.value);
           var match = this.autoSuggestEnableRegex.exec(this.inputEl.dom.value);
           if (Ext.isEmpty(match)) {
              return false;

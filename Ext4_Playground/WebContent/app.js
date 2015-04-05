@@ -57,6 +57,5 @@ Ext.application({
         var mainTarget = Ext.create('Ext.dd.DDTarget', 'mainRoom', 'tablesDDGroup', {
             ignoreSelf: false
         });
-
     }
 });

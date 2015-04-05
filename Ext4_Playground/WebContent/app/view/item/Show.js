@@ -272,7 +272,7 @@ Ext.define("Ext.form.field.QueryAutoCompleteTextAreaCombo", {
       extend : 'Ext.form.field.ComboBox',
       alias : 'widget.QueryAutoCompleteTextAreaCombo',
       // TODO - check how to put multiple values into "query textbox for multiple values selection"
-      multiSelect : false,
+      multiSelect : true,
       editable : true,
       cols: 20,
       rows: 6,
@@ -306,43 +306,64 @@ Ext.define("Ext.form.field.QueryAutoCompleteTextAreaCombo", {
              '<tpl if="fieldStyle"> style="{fieldStyle}"</tpl>', 
              '/>',
             '</div>', {
+            // XTemplate configuration:
             compiled : true,
             disableFormats : true
           }],
-      /*tpl : Ext.create('Ext.XTemplate', 
+      tpl : Ext.create('Ext.XTemplate', 
             '<tpl for=".">', 
                 '<div class="x-boundlist-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="chkCombo-default-icon chkCombo" />{name}</div>', 
-             '</tpl>'),*/
-      displayTpl : Ext.create('Ext.XTemplate', '<tpl for=".">', '{name} ', '</tpl>'),
+             '</tpl>'),
+      displayTpl : Ext.create('Ext.XTemplate', '<tpl for=".">', '+{[this.setDisplayValue(values.name)]} ',
+               '</tpl>', {
+                // XTemplate configuration:
+                compiled : true,
+                disableFormats : true,
+                // member functions:
+                setDisplayValue : function(name) {
+                  if (name.search(/\s/m) == -1) {
+                    return name;
+                  } else {
+                    return '"' + name + '"';
+                  }
+                }
+              }),
       // To enable the HTML inside the Textarea - change tpl
       // http://stackoverflow.com/questions/9016859/extjs-4-render-html-of-a-selected-value-in-a-combobox
-      setRawValue : function(value) {
-        var me = this;
-        value = Ext.value(me.transformRawValue(value), '');
-        console.debug(value);
-        if (me.inputEl) {
-          // get the previous dom value - save it in textAreaRawValue
-          this.textAreaRawValue = me.inputEl.dom.value;
-          // replace the last string part
-          this.textAreaRawValue = this.textAreaRawValue.replace(/\s{0,2}(\w{2,})$/i, value);
-          me.rawValue = value;
-          me.inputEl.dom.value = this.textAreaRawValue;
-        }
-        return value;
-      },
       getRawValue : function() {
-        var me = this, v = me.callParent();
+        var me = this, 
+        v = Ext.value(me.actualValues, ''); //v = me.callParent();
+        //console.debug("getRawValue parent - "+v);
         if (v === me.emptyText && me.valueContainsPlaceholder) {
-          v = '';
-          return v;
-        }
-        return v;
-        var match = this.autoSuggestEnableRegex.exec(v);
-        if (Ext.isEmpty(match)) {
           return '';
         }
-        console.debug("getRawValue - "+match[2]);
-        return Ext.valueFrom(match[2], '');
+        console.debug("getRawValue final - "+me.actualValues);
+        return v;
+      },
+      setRawValue : function(value) {
+        var me = this, previousRawValue, newRawValue;
+        console.debug("me.rawValue setRawValue "+me.rawValue+" value "+value);
+        value = Ext.value(me.transformRawValue(value), '');
+        if (me.inputEl) {
+            me.rawValue = me.inputEl.dom.value
+        }else{
+            me.rawValue = Ext.valueFrom(me.rawValue, '');
+        }
+        me.actualValues = value;
+        if(me.rawValue.lastIndexOf(":") != -1){
+            // Replace everything after ":" with given value and then assign it to this.rawValue
+            previousRawValue = me.rawValue.substring(0,me.rawValue.lastIndexOf(":")+1);
+            newRawValue = previousRawValue + "(" + me.actualValues + ")";
+        }else{
+            newRawValue = me.actualValues;
+        }
+        if (me.inputEl) {
+          //console.debug("setValue final "+newRawValue);
+          me.inputEl.dom.value = newRawValue;
+          me.rawValue = newRawValue;
+        }
+        console.debug("me.rawValue setRawValue "+me.rawValue);
+        return me.actualValues;
       },
       getTextAreaValue : function(){
         this.textAreaRawValue = this.inputEl.dom.value;
@@ -359,19 +380,35 @@ Ext.define("Ext.form.field.QueryAutoCompleteTextAreaCombo", {
       listeners : {
         keyup : function(combo, e, eOpts) {
           Ext.get('text_area_' + combo.id + "-inputEl").dom.value = combo.inputEl.dom.value;
+          combo.getPicker().hide();
         },
         beforequery : function(record) {
-          console.debug("inside before query - "+this.inputEl.dom.value);
-          var match = this.autoSuggestEnableRegex.exec(this.inputEl.dom.value);
-          if (Ext.isEmpty(match)) {
-             return false;
+          var rawValue = this.inputEl.dom.value.trim();
+          // For autosuggestion to start suggesting values - user must put 
+          // equals i.e .":" after field-name
+          if(rawValue.lastIndexOf(":") == -1){
+            this.actualValues = '';
+            return false;
+          }
+          // e.g. in query value - "TA : was" --> "TA" == field name and "was" == keyword
+          var keyword = rawValue.substring(rawValue.lastIndexOf(":")+1).trim();
+          // Meaning --> query already fired up.
+          // To show autosuggest again -> erase whole value for "that field" 
+          // including the opening and closing braces and then try again, it will work
+          // e.g. Autosuggest will work for values "TA: was" where TA is field value
+          // but won't work if it has any spaces in its value e.g. "TA : was tr"
+          // or e.g. "TA : (+one +'two three')"
+          if(keyword.search(/\s/) != -1 || keyword.length < 2){
+            this.actualValues = '';
+            return false;
           }
           /**
            * So load the store based on query i.e. field-value and field-name
            */
-          var actualQuery = match[2];
-          var storeLoadParam = match[1];
-          record.query = actualQuery;
+          var temp = rawValue.substring(0,rawValue.lastIndexOf(":")).trim();
+          var searchFieldName = temp.substring(temp.lastIndexOf(" "));
+          record.query = keyword;
+          //console.debug("ACCEPTED query - "+record.query+" - field name - "+searchFieldName);
           record.query = new RegExp(record.query.substring(record.query.lastIndexOf(" ") + 1), 'i');
           record.forceAll = true;
           // TODO - dynamically change the actual store's proxy load parameters
@@ -379,6 +416,46 @@ Ext.define("Ext.form.field.QueryAutoCompleteTextAreaCombo", {
       }
     });
 
+    Ext.define("Ext.form.field.TestTextAreaCombo", {
+      extend : 'Ext.form.field.ComboBox',
+      alias : 'widget.testCombo',
+      autoSuggestEnableRegex : /(\s*(\w+)\s*\:\s{0,2}\"*)(\w{2,})\"*$/i,
+      getRawValue : function() {
+        var me = this, 
+        v = Ext.value(me.actualValues, ''); //v = me.callParent();
+        //console.debug("getRawValue parent - "+v);
+        if (v === me.emptyText && me.valueContainsPlaceholder) {
+          return '';
+        }
+        console.debug("getRawValue final - "+me.actualValues);
+        return v;
+      },
+      setRawValue : function(value) {
+        var me = this, previousRawValue, newRawValue;
+        console.debug("me.rawValue setRawValue "+me.rawValue+" value "+value);
+        value = Ext.value(me.transformRawValue(value), '');
+        if (me.inputEl) {
+            me.rawValue = me.inputEl.dom.value
+        }else{
+            me.rawValue = Ext.valueFrom(me.rawValue, '');
+        }
+        me.actualValues = value;
+        if(me.rawValue.lastIndexOf(":") != -1){
+            // Replace everything after ":" with given value and then assign it to this.rawValue
+            previousRawValue = me.rawValue.substring(0,me.rawValue.lastIndexOf(":")+1);
+            newRawValue = previousRawValue + "(" + me.actualValues + ")";
+        }else{
+            newRawValue = me.actualValues;
+        }
+        if (me.inputEl) {
+          //console.debug("setValue final "+newRawValue);
+          me.inputEl.dom.value = newRawValue;
+          me.rawValue = newRawValue;
+        }
+        console.debug("me.rawValue setRawValue "+me.rawValue);
+        return me.actualValues;
+      }
+    });
 /**
  * Reference Link -
  * http://stackoverflow.com/questions/6600919/extjs-4-combobox-with-checkboxes
@@ -427,10 +504,9 @@ Ext.define('Application.view.item.Show', {
           fieldStyle : "height:100px",
           queryMode : 'local'
        }, {
-          xtype : 'combo',
+          xtype : 'testCombo',
           id : 'statesComboList_hidden',
           multiSelect : true,
-          fieldLabel : 'Choose State 2',
           hideLabel : true,
           emptyText : "Select states",
           store : statesStore,
@@ -440,20 +516,62 @@ Ext.define('Application.view.item.Show', {
           cols: 20,
           rows: 6,
           hideTrigger : true,
-          // matchFieldWidth : false,
           enableKeyEvents : true,
-          fieldStyle : "height:100px",
           queryMode : 'local',
           tpl : Ext.create('Ext.XTemplate', '<tpl for=".">', '<div class="x-boundlist-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="chkCombo-default-icon chkCombo" />{name}</div>', '</tpl>'),
-          displayTpl : Ext.create('Ext.XTemplate', '<tpl for=".">', '{name} ', '</tpl>'),
+          displayTpl : Ext.create('Ext.XTemplate', '<tpl for=".">', '+{[this.setDisplayValue(values.name)]} ',
+               '</tpl>', {
+                // XTemplate configuration:
+                compiled : true,
+                disableFormats : true,
+                // member functions:
+                setDisplayValue : function(name) {
+                  if (name.search(/\s/m) == -1) {
+                    return name;
+                  } else {
+                    return '"' + name + '"';
+                  }
+                }
+              }),
           listeners : {
+            keyup : function(combo, e, eOpts) {
+              Ext.get('text_area_' + combo.id + "-inputEl").dom.value = combo.inputEl.dom.value;
+              combo.getPicker().hide();
+            },
             beforequery : function(record) {
-              console.debug(record.query);
+              var rawValue = this.inputEl.dom.value.trim();
+              // For autosuggestion to start suggesting values - user must put 
+              // equals i.e .":" after field-name
+              if(rawValue.lastIndexOf(":") == -1){
+                this.actualValues = '';
+                return false;
+              }
+              // e.g. in query value - "TA : was" --> "TA" == field name and "was" == keyword
+              var keyword = rawValue.substring(rawValue.lastIndexOf(":")+1).trim();
+              // Meaning --> query already fired up.
+              // To show autosuggest again -> erase whole value for "that field" 
+              // including the opening and closing braces and then try again, it will work
+              // e.g. Autosuggest will work for values "TA: was" where TA is field value
+              // but won't work if it has any spaces in its value e.g. "TA : was tr"
+              // or e.g. "TA : (+one +'two three')"
+              if(keyword.search(/\s/) != -1 || keyword.length < 2){
+                this.actualValues = '';
+                return false;
+              }
+              /**
+               * So load the store based on query i.e. field-value and field-name
+               */
+              var temp = rawValue.substring(0,rawValue.lastIndexOf(":")).trim();
+              var searchFieldName = temp.substring(temp.lastIndexOf(" "));
+              record.query = keyword;
+              //console.debug("ACCEPTED query - "+record.query+" - field name - "+searchFieldName);
               record.query = new RegExp(record.query.substring(record.query.lastIndexOf(" ") + 1), 'i');
               record.forceAll = true;
+              // TODO - dynamically change the actual store's proxy load parameters
             }
-          },
-          alignPicker : function() {
+          }
+           /*
+           * alignPicker : function() {
             var me = Ext.getCmp('StatesComboList'), picker = me.getPicker(), 
             heightAbove = me.getPosition()[1] - Ext.getBody().getScroll().top, heightBelow = Ext.Element.getViewHeight() - heightAbove - me.getHeight(), space = Math.max(heightAbove, heightBelow);
 
@@ -469,7 +587,7 @@ Ext.define('Application.view.item.Show', {
               // flush against
             }
             me.callParent();
-          }
+          }*/
         }/*, {
           xtype : 'textareafield',
           name : 'query',

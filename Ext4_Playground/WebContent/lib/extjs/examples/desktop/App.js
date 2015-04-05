@@ -21,7 +21,7 @@ Ext.define('MyDesktop.App', {
         'MyDesktop.Notepad',
         'MyDesktop.BogusMenuModule',
         'MyDesktop.BogusModule',
-        'MyDesktop.EditQueryWindow',
+        
 //        'MyDesktop.Blockalanche',
         'MyDesktop.Settings'
     ],
@@ -38,7 +38,6 @@ Ext.define('MyDesktop.App', {
         return [
             new MyDesktop.VideoWindow(),
             //new MyDesktop.Blockalanche(),
-            new MyDesktop.EditQueryWindow(),
             new MyDesktop.SystemStatus(),
             new MyDesktop.GridWindow(),
             new MyDesktop.TabWindow(),
