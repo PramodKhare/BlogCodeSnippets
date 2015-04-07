@@ -116,7 +116,7 @@ Ext.define('MyApp.EditQueryWindow.view.SearchQueryFormPanel', {
                     btn, text) {
                   if (Ext.isNumber(text) && text < 20 && text > 0) {
                     var field = Ext.getCmp('searchQueryTextAreaId');
-                    field.insertAtCursor(" ~" + text);
+                    field.insertAtCursor("~" + text);
                     field.focus();
                   }
                 });
@@ -172,6 +172,15 @@ Ext.define('MyApp.EditQueryWindow.view.SearchQueryFormPanel', {
         }
       }
       Ext.MessageBox.alert('Search Query', query.replace(pattern, expandQuery));
+      // TODO - Append PC - Publication Country value from Patent Fields
+      // GridPanel's
+      /*if (Ext.getCmp('patentFieldsRadioGroupId').getChecked()[0].inputValue == 1) {
+        // Indian patents selected
+      } else {
+        // Meaning - world-wide patents fields are used - 
+        // var PC = Ext.getCmp('worldWidePntsPCSplitId')._PCFieldValue; 
+        // Append it to query 
+      }*/
     }
   }, {
     text : 'Reset',

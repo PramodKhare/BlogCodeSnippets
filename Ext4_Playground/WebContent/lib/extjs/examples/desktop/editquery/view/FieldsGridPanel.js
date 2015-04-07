@@ -1,4 +1,11 @@
-/* Pramod Khare */
+/*!
+ * @Author  : Pramod Khare 
+ * @Purpose : Source code for Patent Field Grid Panel
+ *            Shows indian as well as world-wide patent fields to select from 
+ *            for creating patent search query 
+ * @Created : March 28th 2015
+ * @Modified: April 4th 2015
+ */
 Ext.define('MyApp.EditQueryWindow.view.FieldsGridPanel', {
   extend : 'Ext.grid.Panel',
   alias : 'widget.FieldsGridPanel',
@@ -37,9 +44,14 @@ Ext.define('MyApp.EditQueryWindow.view.FieldsGridPanel', {
   },
   tbar : [{
     xtype : 'radiogroup',
+    id : 'patentFieldsRadioGroupId',
     hideLabel : true,
     items : [{
       boxLabel : 'Indian patents',
+      tooltip : {
+        text : 'Fields for Indian Patents',
+        title : 'Patent Fields'
+      },
       name : 'patent-fields',
       inputValue : 1,
       width : 100,
@@ -55,20 +67,110 @@ Ext.define('MyApp.EditQueryWindow.view.FieldsGridPanel', {
         }
       }
     }, {
-      boxLabel : 'World wide patents',
-      name : 'patent-fields',
-      inputValue : 2,
-      width : 150,
-      listeners : {
-        change : function(rdgroupp, newValue, oldValue, eOpts) {
-          if (newValue) {
-            var store = Ext.getCmp('fieldsGridPanelId').getStore();
-            store.removeAll();
-            store.getProxy().url = '/extjs4/examples/desktop/editquery/store/world-patent-fields.json';
-            store.load();
+      xtype : 'container',
+      layout : 'hbox',
+      items : [{
+        xtype : 'radio',
+        // boxLabel : 'World wide patents',
+        name : 'patent-fields',
+        inputValue : 2,
+        listeners : {
+          change : function(rdgroupp, newValue, oldValue, eOpts) {
+            if (newValue) {
+              var store = Ext.getCmp('fieldsGridPanelId').getStore();
+              store.removeAll();
+              store.getProxy().url = '/extjs4/examples/desktop/editquery/store/world-patent-fields.json';
+              store.load();
+            }
           }
         }
-      }
+      }, {
+        xtype : 'splitbutton',
+        id : 'worldWidePntsPCSplitId',
+        text : 'World wide patents',
+        handler: function(btn, e){
+            btn.showMenu();
+        },
+        _PCFieldValue : "",
+        tooltip : {
+          text : 'Selct Patent Publication Country',
+          title : 'Publication Country'
+        },
+        // Menus can be built/referenced by using nested menu config objects
+        menu : {
+          items : ['<b>Full text collection</b>', '-', {
+                text : 'US (United States)',
+                group : 'PC',
+                checked : true,
+                handler : function (item, e){
+                    Ext.getCmp('worldWidePntsPCSplitId')._PCFieldValue = "US";
+                }
+              }, {
+                text : 'EP (European)',
+                group : 'PC',
+                checked : false,
+                handler : function (item, e){
+                    Ext.getCmp('worldWidePntsPCSplitId')._PCFieldValue = "EP";
+                }
+              }, {
+                text : 'CA (Canada)',
+                group : 'PC',
+                checked : false,
+                handler : function (item, e){
+                    Ext.getCmp('worldWidePntsPCSplitId')._PCFieldValue = "CA";
+                }
+              }, {
+                text : 'WO',
+                group : 'PC',
+                checked : false,
+                handler : function (item, e){
+                    Ext.getCmp('worldWidePntsPCSplitId')._PCFieldValue = "WO";
+                }
+              }, '-', '<b>Biblio Collection</b>', '-', {
+                text : 'PK',
+                group : 'PC',
+                checked : false,
+                handler : function (item, e){
+                    Ext.getCmp('worldWidePntsPCSplitId')._PCFieldValue = "BCPK";
+                }
+              }, {
+                text : 'US',
+                group : 'PC',
+                checked : false,
+                handler : function (item, e){
+                    Ext.getCmp('worldWidePntsPCSplitId')._PCFieldValue = "BCUS";
+                }
+              }, {
+                text : 'EP',
+                group : 'PC',
+                checked : false,
+                handler : function (item, e){
+                    Ext.getCmp('worldWidePntsPCSplitId')._PCFieldValue = "BCEP";
+                }
+              }, {
+                text : 'CA',
+                group : 'PC',
+                checked : false,
+                handler : function (item, e){
+                    Ext.getCmp('worldWidePntsPCSplitId')._PCFieldValue = "BCCA";
+                }
+              }, {
+                text : 'WO',
+                group : 'PC',
+                checked : false,
+                handler : function (item, e){
+                    Ext.getCmp('worldWidePntsPCSplitId')._PCFieldValue = "BCWO";
+                }
+              }, {
+                text : 'CH',
+                group : 'PC',
+                checked : false,
+                handler : function (item, e){
+                    Ext.getCmp('worldWidePntsPCSplitId')._PCFieldValue = "BCCH";
+                }
+              }]
+        }
+      }]
     }]
   }]
 });
