@@ -1,0 +1,19 @@
+{
+  'items' : [{
+        "UID" : "IN1031/KOLNP/2013 20130411",
+        "category" : "A",
+        "comments" : "test comment"
+      }, {
+        "UID" : "IN1031/KOLNP/2013 20130411",
+        "category" : "E",
+        "comments" : "Potentially conflicting patent documents"
+      }, {
+        "UID" : "IN1072/CHE/2013 20130314",
+        "category" : "O",
+        "comments" : "test test"
+      }, {
+        "UID" : "IN1073/CHE/2013 20130317",
+        "category" : "I",
+        "comments" : "test"
+      }]
+}

@@ -1,0 +1,59 @@
+{
+  'items' : [{
+        "abbr" : "HR",
+        "name" : "Haryana",
+        "slogan" : "Pacific Wonderland"
+      }, {
+        "abbr" : "TN",
+        "name" : "Telagana",
+        "slogan" : "Keystone State"
+      }, {
+        "abbr" : "UD",
+        "name" : "Udisha",
+        "slogan" : "Ocean State"
+      }, {
+        "abbr" : "WB",
+        "name" : "West Bengal",
+        "slogan" : "Nothing Could be Finer"
+      }, {
+        "abbr" : "RJ",
+        "name" : "Rajastan",
+        "slogan" : "Great Faces, Great Places"
+      }, {
+        "abbr" : "GA",
+        "name" : "Goa",
+        "slogan" : "Volunteer State"
+      }, {
+        "abbr" : "GJ",
+        "name" : "Gujrat",
+        "slogan" : "Lone Star State"
+      }, {
+        "abbr" : "PD",
+        "name" : "Pondicherry",
+        "slogan" : "Union Territory"
+      }, {
+        "abbr" : "DL",
+        "name" : "Delhi",
+        "slogan" : "Capital City"
+      }, {
+        "abbr" : "MH",
+        "name" : "Maharashtra",
+        "slogan" : "Mother of States"
+      }, {
+        "abbr" : "KA",
+        "name" : "Karnataka",
+        "slogan" : "Green Tree State"
+      }, {
+        "abbr" : "KL",
+        "name" : "Kerala",
+        "slogan" : "Mountain State"
+      }, {
+        "abbr" : "AP",
+        "name" : "Andhra Pradesh",
+        "slogan" : "America's Dairyland"
+      }, {
+        "abbr" : "TN",
+        "name" : "TamilNadu",
+        "slogan" : "Like No Place on Earth"
+      }]
+}

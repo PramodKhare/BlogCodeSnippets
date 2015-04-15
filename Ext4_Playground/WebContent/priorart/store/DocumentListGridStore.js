@@ -1,15 +1,15 @@
 /* Pramod Khare */
-Ext.define('MyApp.EditQueryWindow.store.FieldsStore', {
+Ext.define('PriorArt.store.DocumentListGridStore', {
       extend : 'Ext.data.Store',
-      alias : 'data-FieldsStore',
-      storeId : 'fieldsStoreId',
+      alias : 'data-document-list-store',
+      storeId : 'documentListGridStoreId',
       sortOnLoad : true,
       autoLoad : true,
       autoDestroy : true,
-      fields : ['id', 'name'],
+      fields : ['UID', 'title', 'pubDate', 'assignee' ],
       proxy : {
         type : 'ajax',
-        url : '/extjs4/examples/desktop/editquery/store/indian-patent-fields.json',
+        url : 'priorart/store/documents-list.json',
         extraParams : {
             // put any extra request params
             // username : '',
@@ -20,7 +20,7 @@ Ext.define('MyApp.EditQueryWindow.store.FieldsStore', {
         }
       },
       sorters : [{
-            property : 'id',
+            property : 'UID',
             direction : 'ASC'
           }]
     });

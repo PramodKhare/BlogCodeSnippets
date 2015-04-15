@@ -6,10 +6,16 @@ Ext.define('MyApp.EditQueryWindow.store.FieldValueDynamicStore', {
   autoDestroy : true,
   autoLoad : true,
   sortOnLoad : true,
+  remoteFilter: false,
   fields : ['abbr', 'name', 'slogan'],
   proxy : {
     type : 'ajax',
-    url : '/extjs4/examples/desktop/editquery/store/fields-value-autosuggest-example.json',
+    url : '/extjs4/examples/desktop/editquery/store/fields-value-autosuggest-inpat.json',
+    extraParams : {
+        // put any extra request params
+        searchFieldName : '',
+        searchFieldValue : ''
+    },
     reader : {
       type : 'json',
       root : 'items'

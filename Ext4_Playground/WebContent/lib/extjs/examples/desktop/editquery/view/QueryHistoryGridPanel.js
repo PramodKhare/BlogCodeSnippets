@@ -50,6 +50,9 @@ Ext.define('MyApp.EditQueryWindow.view.QueryHistoryGridPanel', {
             }]
           }],
       viewConfig : {
+        deferEmptyText : true,
+        emptyText : "No query history available",
+        loadMask : true,
         scrollOffset : 0,
         forceFit : true
       }

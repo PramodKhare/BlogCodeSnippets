@@ -10,6 +10,10 @@ Ext.define('MyApp.EditQueryWindow.store.FieldsStore', {
       proxy : {
         type : 'ajax',
         url : '/extjs4/examples/desktop/editquery/store/indian-patent-fields.json',
+        extraParams : {
+            // put any extra request params
+            // username : '',
+        },
         reader : {
           type : 'json',
           root : 'items'
