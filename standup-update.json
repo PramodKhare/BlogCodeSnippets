@@ -19,7 +19,6 @@
 	"titleText" : "Bloomberg Market Minutes",
 	"additionalInfo" : "Market updates every 30 minutes",
 	"mainText" : "Market updates every 20 and 50 minutes past the hour",
-	"streamUrl" : "http://radioplus.bloomberg.com.edgesuite.net/syndicatedaudio/MarketMinutesWeekday.mp3",
 	"videoUrl"  : "http://radioplus.bloomberg.com.edgesuite.net/syndicatedaudio/MarketMinutesWeekday.mp4",
 	"redirectionUrl" : "http://www.bloomberg.com/radio/",
 	"art" : {
