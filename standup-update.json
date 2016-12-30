@@ -13,18 +13,25 @@
             "url" : "https:\/\/www.wired.com\/wp-content\/uploads\/2016\/10\/Ulbricht_HP_AP_748136603732-500x500-e1475777459789.jpg"
         }]
     }
-},{
-    "uid" : "urn:uuid:4f63c495-709b-483b-b560-96171525c2fe",
-    "updateDate" : "2016-10-06T17:45:51.000000Z",
-     "additionalInfo" : "Market updates every 30 minutes",
-    "titleText" : "Pramod's daily standup update",
-    "redirectionUrl" : "https:\/\/www.wired.com\/2016\/10\/judges-question-ulbrichts-life-sentence-silk-road-appeal\/",
-    "art" : {
-        "attribution" : "AP",
-        "images" : [{
-            "height" : 500,
-            "width" : 500,
-            "url" : "https:\/\/www.wired.com\/wp-content\/uploads\/2016\/10\/Ulbricht_HP_AP_748136603732-500x500-e1475777459789.jpg"
-        }]
-    }
+}, {
+	"uid" : "Bloomberg Market Minutes",
+	"updateDate" : "2015-11-07T12:00:11-0400",
+	"titleText" : "Bloomberg Market Minutes",
+	"additionalInfo" : "Market updates every 30 minutes",
+	"mainText" : "Market updates every 20 and 50 minutes past the hour",
+	"streamUrl" : "http://radioplus.bloomberg.com.edgesuite.net/syndicatedaudio/MarketMinutesWeekday.mp3",
+	"videoUrl"  : "http://radioplus.bloomberg.com.edgesuite.net/syndicatedaudio/MarketMinutesWeekday.mp4",
+	"redirectionUrl" : "http://www.bloomberg.com/radio/",
+	"art" : {
+		"attribution" : "Photo by Bloomberg",
+		"images" : [{
+				"height" : 84,
+				"width" : 100,
+				"url" : "http://cdn-mobapi.bloomberg.com/bbstatic/bradio/images/marketminutes100x84.jpg?ts=20150807"
+		}, {
+				"height" : 300,
+				"width" : 360,
+				"url" : "http://cdn-mobapi.bloomberg.com/bbstatic/bradio/images/marketminutes360x300.jpg?ts=20150807"
+		}]
+	}
 }]
