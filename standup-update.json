@@ -1,4 +1,21 @@
 [{
+"uid": "crunchreport-video-feed",
+"videoUrl": "https://delivery.vidible.tv/video/redirect/587d50f9cb65d302613ed55c?bcid=55145d7f1146fb0d084da5ec&w=852&h=480",
+"streamUrl": "https://s3.amazonaws.com/alpha-echo-transcode/audio/crunchreport-587d50f9cb65d302613ed55c.mp3",
+"art": {
+"images": [
+{
+"url": "https://s3.amazonaws.com/alpha-echo-transcode/images/techcrunch.png",
+"width": 512,
+"height": 512
+}
+]
+},
+"redirectionUrl": "https://techcrunch.com/video/crunchreport/",
+"updateDate": "2017-01-17T00:02:12.151Z",
+"mainText": "Xiaomi admits company grew too fast, Samsung's leader Jay Y. Lee is issued an arrest warrant, SpaceX successfully launches and lands a Falcon 9 and Airbus is exploring flying taxis. All this on Crunch Report.",
+"titleText": "Samsung Leader Bribery Charges | Crunch Report"
+}, {
     "uid" : "urn:uuid:4f63c495-709b-483b-b560-96171525c2fe",
     "updateDate" : "2016-10-06T17:45:51.000000Z",
      "additionalInfo" : "Market updates every 30 minutes",
